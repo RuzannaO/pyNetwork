@@ -1,41 +1,62 @@
 from collections import defaultdict
+
+
 def nonempty(a):
     return a
+
+
 def parse_ini(path):
-    # reads txt file data, the list "lines' is comprised of lines from the txt file
+    # reads txt file data, creates a list "txtlines' comprised of lines from the txt file
     with open(path) as rdr:
-        lines = rdr.read().splitlines()
+        txtlines = rdr.read().splitlines()
     # clear empty elements, i.e. empty lines
-    new_lines = list(filter(nonempty, lines))
-    # defines indexes which correspond to sections and which to the content data (lists - sections_index and content_index)
+    lines = list(filter(nonempty, txtlines))
+    # defines indexes which correspond to the sections and which to the content data (lists - sections_index and content_index)
     sections_index = []
     content_index = []
-    for i in range(0, len(new_lines)):
-        if new_lines[i][0] == "[" and new_lines[i][-1] == "]":
+    for i in range(0, len(lines)):
+        if lines[i][0] == "[" and lines[i][-1] == "]":
             sections_index.append(i)
         else:
             content_index.append(i)
-
-    # cleans [] brackets from sections' names
+    # cleans [] first and last brackets from sections' names
     for i in sections_index:
-        new_lines[i] = new_lines[i].replace("[", "")
-        new_lines[i] = new_lines[i].replace("]", "")
+        lines[i] = lines[i][1:len(lines[i])-1]
+
+    # validation  - section names do not contain extra ] [ brackets
+
+    for i in sections_index:
+        counter = 0
+        if "[" in lines[i] or "]" in lines[i]:
+            counter += 1
+            print(f' ERROR! BAD SECTION NAME "{lines[i]}"')
+
+    # validation - "=" available or not
+    s = 0
+    for j in content_index:
+        if "=" not in lines[j]:
+            print(f' ERROR! INACCURATE DATA ... MISSING "=" in "{lines[j]}" ')
+            s += 1
+    if s > 0 or counter > 0:
+        return ""
 
     # defines the final dictionary
-    dict2=defaultdict(set,{k:[] for k in sections_index})
+    dict2 = defaultdict(set, {k:[] for k in sections_index})
 
     dict1 = defaultdict(set)
     for k in range(0, len(sections_index)):
 
         for j in content_index:
             if k == len(sections_index) - 1 and j > sections_index[k]:
-                dict1[new_lines[sections_index[k]]].add(new_lines[j])
+                dict1[lines[sections_index[k]]].add(lines[j])
 
             else:
                 if j > sections_index[k] and j < sections_index[k + 1]:
-                    dict1[new_lines[sections_index[k]]].add(new_lines[j])
-            dict1[new_lines[sections_index[-1]]].add("")
-            dict1[new_lines[sections_index[-1]]].remove("")
+                    dict1[lines[sections_index[k]]].add(lines[j])
+                else:
+                    dict1[lines[sections_index[k]]].add("")
+                    dict1[lines[sections_index[k]]].remove("")
+
     return (dict(dict1))
 
 
