@@ -1,0 +1,38 @@
+{%extends 'base.html'%}
+{%block html_title%}search{%endblock%}
+{%block content%} 
+<div id="person_info_form" class="main">
+  <form  action="/search" method="get" name="search">
+	<label style="display: block" for="search">Search</label>
+	<input type="text" name="searched_name" size="35" value="">
+	<input type="submit" value="Search">
+  </form>
+	{% if persons %}
+	<h3 style="text-align:left;">{{output}} </h3>
+	<table border=1>
+		<tr>
+			<th><h4>first name<h4></th>
+			<th><h4>last name</h4></th>
+			<th><h4>Sex</h4></th>
+			<th><h4>Age</h4></th>
+		</tr>
+		{%for person in persons%}
+		<tr>
+			<th>{{person['First name']}}</th>
+			<th>{{person['Last name']}}</th>
+			<th>{{person['Sex']}}</th>
+			<th>{{person['age']}}</th>
+		</tr>
+		{% endfor %}
+	</table>
+	{% else %}
+	<h3 style="text-align:left;">{{output}} </h3>
+	{% endif %}
+ </div> 
+ {% endblock %}
+ 
+ <br><br><br><br><br><br><br><br>
+
+      {% block footer %}
+ <p> <h4>		<a href="http://127.0.0.1:8000/">Home</a> </h4> </p>
+        {% endblock %}
