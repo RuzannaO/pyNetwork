@@ -1,0 +1,39 @@
+{%extends 'base.html'%}
+{%block html_title%}this is index file{%endblock%}
+{%block content%} 
+
+
+<div class="main">
+	<form method="POST" action="/">
+			<div><br></br>
+				<label for="first_name_inp">First name</label>
+				<input id="first_name_inp" type="text" name="First name" size="35" value="" required/>
+			</div>
+			<div><br></br>
+				<label for="last_name_inp">Last name</label>
+				<input id="last_name_inp" type="text" name="Last name" size="35" value="" required>
+				
+			</div>
+
+			<div><br></br>
+			<label for ="sex_inp">Sex</label>
+			<select id="sex_inp" name="Sex" required>
+					<option value="None selected">Please select below</option>
+					<option value="Male">Male</option>
+					<option value="Female">Female</option>
+
+			</select>
+			</div>
+			<div><br></br>
+				<label for="age_inp">Age</label>
+				<input id="age_inp" type="number" min="0"  max= "150" name="age"  value="" size=10>
+				
+			</div>
+			<br></br>
+			<div>
+				<input type="submit" value="Send Your Feedback">
+			</div>
+		</form>
+
+
+</div> {%endblock%}
