@@ -124,6 +124,7 @@ class bnakaran:
         plt.scatter(y_test,predictions)
         plt.show()
         print(len(predictions))
+        print("Here is the accuracy check on the train data")
         print('MAE:', metrics.mean_absolute_error(y_test, predictions))
         print('MSE:', metrics.mean_squared_error(y_test, predictions))
         print('RMSE:', np.sqrt(metrics.mean_squared_error(y_test, predictions)))
@@ -149,16 +150,19 @@ def predict(df,intc,coef,mylist):
 
 x=bnakaran('houses_train (1).csv')
 
-l=x.fit_multi_lin(x.preprocessing())
-print(l)
-intc,coef,my_list=l
-# intc,coef=(x.fit_multi_lin(x.preprocessing()))
-# print(x.fit_multi_lin(x.preprocessing()))
+y=x.preprocessing()
+predict(y)
 
-y=bnakaran("Book2.csv")
-m=y.preprocessing()
-print(m.head())
-print(predict(m, intc,coef,my_list).to_string())
+# l=x.fit_multi_lin(x.preprocessing())
+# print(l)
+# intc,coef,my_list=l
+# # intc,coef=(x.fit_multi_lin(x.preprocessing()))
+# # print(x.fit_multi_lin(x.preprocessing()))
+#
+# y=bnakaran("Book2.csv")
+# m=y.preprocessing()
+# print(m.head())
+# print(predict(m, intc,coef,my_list).to_string())
 
 
 
