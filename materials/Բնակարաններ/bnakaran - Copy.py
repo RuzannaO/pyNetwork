@@ -28,12 +28,7 @@ from sklearn.metrics import mean_absolute_error
 # from sklearn.externals import joblib
 
 
-def add_new_names(df,field_name):
-    for i in df[field_name]:
-        if not i in eval(f'{name}_dict'):
-            eval(f'{name}_dict')[name]=1000
 
-    return eval(f'{name}_dict')
 
 def show_plot(df, field):
     y = df['price']
@@ -52,8 +47,6 @@ class bnakaran:
 
         self.dataset=pd.read_csv(filename,encoding='ISO-8859-1')
         ##-- validate headers names
-        print(set(self.dataset.columns.values))
-        print(set(['Unnamed: 0',"url",'region','price','condition','district','max_floor','street','num_rooms','area','num_bathrooms','building_type','floor','ceiling_height']))
         if set(self.dataset.columns.values)!=set(['Unnamed: 0',"url",'region','price','condition','district','max_floor','street','num_rooms','area','num_bathrooms','building_type','floor','ceiling_height']):
             raise ValueError("INCORRECT SET OF HEADERS NAMES")
         self.dataset=self.dataset.drop(columns=['Unnamed: 0', 'region','url'])
@@ -63,17 +56,11 @@ class bnakaran:
                 raise ValueError(f'Field name "{i}" not correct!')
             for j in self.dataset[i]:
                 if not isinstance(j,eval(name_dict[i][0])):
-                    raise TypeError (f'Incorrect type in Field {i}, {j}, must be {name_dict[i][0]}! ')
+                      raise TypeError (f'Incorrect type in Field "{i}"",  must be {name_dict[i][0]}! ')
                 if not isinstance(j,str):
                     if j> name_dict[i][1][1] or j< name_dict[i][1][0]:
-                        raise ValueError(f'Incorrect value in the Field "{i}"", {j}, must be in range {name_dict[i][1]}! ')
+                        raise ValueError(f'Incorrect value in the Field "{i}", {j}, must be in range {name_dict[i][1]}! ')
 
-    def add_new_names(df, field_name):
-        for i in df[field_name]:
-            if not i in eval(f'{name}_dict'):
-                eval(f'{name}_dict')[name] = 1000
-
-        return eval(f'{name}_dict')
 
 
     def describe(self):
@@ -87,15 +74,20 @@ class bnakaran:
             ##-- creates (reads) street - coefficients dict
         df = pd.read_csv("Streets.csv", engine='python')
         condition_dict={"newly repaired": 1, "good": 0.85, "zero condition": 0.7}
-        building_dict={"monolit":1,"stone":2,"other":3,'panel':4}
+        building_type_dict={"monolit":1,"stone":2,"other":3,'panel':4}
         street_dict=pd.Series(df.Street_koef.values, index=df.street).to_dict()
             ##-- creates (reads) district - coefficients dict
         df1 = pd.read_csv("Districts.csv", engine='python')
         district_dict=pd.Series(df1.district_coef.values, index=df1.district).to_dict()
         ##-- if not available , add to the corresponding dict with value
-        add_new_names(self.dataset,"condition")
+        #**********************************************************************
+        make_changes={"condition":0.8,"building_type":2,"district":0.45}
+        for field_name in ["condition","building_type","district"]:
+            for i in self.dataset[field_name]:
+                if i not in eval(f'{field_name}_dict'):
 
-
+                    eval(f'{field_name}_dict')[str(i)] = make_changes[str(field_name)]
+            print("eval",eval(f'{field_name}_dict'))
 
 
             ## -- creates a dict (district: street) grouped by district
@@ -109,30 +101,22 @@ class bnakaran:
                     if i not in v:
                         street_dict[i]=district_dict[k]
             ##--validate district,condition, buiding type values
-        print(set(self.dataset['district'].tolist()))
-        print(set([*district_dict]))
         if not set(self.dataset['district'].tolist()).issubset(set([*district_dict])):
             raise ValueError ("INCORRECT VALUE DISTRICT NAME!!!")
-        if set(self.dataset['condition'].tolist())!=set(["newly repaired","good","zero condition"]):
-            raise ValueError ("INCORRECT VALUE CONDITION NAME!!!")
-        if set(self.dataset['building_type'].tolist())!=set(["stone","panel","monolit","other"]):
-            raise ValueError ("INCORRECT VALUE BUIDING TYPE NAME!!!")
         name_dict={"street":street_dict, "district": district_dict,
-                     "condition":condition_dict,"building_type":building_dict}
+                     "condition":condition_dict,"building_type":building_type_dict}
         for j in ["building_type","condition",'district','street']:
                 self.dataset[j]=self.dataset[j].map(name_dict[j])
         self.dataset.to_csv("output3.csv")
-        # self.street_dict=str_
-        print("sayat",street_dict["Sayat Nova Ave"])
         return self.dataset
     def fit_multi_lin(self,df):
         labels = df['price']
-        train1 = df.drop(['price', 'district','num_bathrooms', "max_floor",  "max_floor", "ceiling_height"],
+        train1 = df.drop(['price', 'district','num_bathrooms', "max_floor","ceiling_height"],
                          axis=1)
         x_train, x_test, y_train, y_test = train_test_split(train1, labels, test_size=0.1, random_state=1)
         reg = LinearRegression(fit_intercept=True).fit(train1, labels)
-        self.list=train1.keys().tolist()
-        print(self.list)
+        self.mylist=train1.keys().tolist()
+        print(self.mylist)
         reg.fit(x_train, y_train)
         self.intercept=reg.intercept_
         self.coef=reg.coef_
@@ -143,78 +127,49 @@ class bnakaran:
         print('MAE:', metrics.mean_absolute_error(y_test, predictions))
         print('MSE:', metrics.mean_squared_error(y_test, predictions))
         print('RMSE:', np.sqrt(metrics.mean_squared_error(y_test, predictions)))
-        return reg.score(x_test,y_test),self.intercept,self.coef
+        return self.intercept,self.coef,self.mylist
     def plotting_on_formula(self,mylist):
         # creates a graph on predicted linear formula(arguments:intersept and coefficents)
         print(self.intercept,self.coef)
         plot_on_formula(self.intercept, self.coef, mylist)
         return
-def predict(self,df,intc_coef):
-    df.drop(['price', 'district', 'num_bathrooms', "max_floor", "max_floor", "ceiling_height"],
-                axis=1)
+def predict(df,intc,coef,mylist):
     Y_test = df["price"]
     df["predictions"] = df["price"]
+
+    print(my_list)
     for i in range(0, len(df)):
-        df["predictions"][i] = self.intercept+self.coef[0]
-    # return('MSE:', metrics.mean_squared_error(Y_test, predictions1))
-    return df.head()
+        y = intc
+        for l in range(0,len(my_list)):
+            y = y+coef[l]*df[str(my_list[l])][i]
+        df["predictions"][i]=y
+    print('MSE:', metrics.mean_squared_error(df['price'], df['predictions']))
+    return df.head(50)
 
 
+x=bnakaran('houses_train (1).csv')
 
-# listm=['condition', 'street', 'num_rooms', 'area', 'building_type', 'floor']
-x=bnakaran('Book2.csv')
-df=x.preprocessing()
-y=df['price'].values
-del df['price']
-
-#make it array without attribut name
-x=df.values
-
-#get only the target value for train
-
-
-#split the data to training data and testing one
-x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=0)
-
-model=ensemble.GradientBoostingRegressor()
-
-# those attrs are the responsible for the performance of  our  gradientBoosting function
-# now we only determine the right combination for the best model
-
-#
-param_grid = {
-    'n_estimators': [500, 1000, 3000],
-    'max_depth': [4, 6],
-    'min_samples_leaf': [3, 5, 9, 17],
-    'learning_rate': [0.1, 0.05, 0.02, 0.01],
-    'max_features': [1.0, 0.3, 0.1],
-    'loss': ['ls', 'lad', 'huber']
-}
-
-# define the grid search we want to run. Run it with 4 cpus in parallel.
-gs_cv = GridSearchCV(model, param_grid)
-
-# Run the grid search - on only the training data!
-gs_cv.fit(x_train, y_train)
-
-# Print the params that gave us the best result!
-print(gs_cv.best_params_)
-
-
-
-
-# df=x.dataset
-# print(df.head())
-# y=bnakaran('Book2.csv')
+l=x.fit_multi_lin(x.preprocessing())
+print(l)
+intc,coef,my_list=l
+# intc,coef=(x.fit_multi_lin(x.preprocessing()))
 # print(x.fit_multi_lin(x.preprocessing()))
-# m=x.fit_multi_lin(x.preprocessing())
-# print(type(m))
+
+y=bnakaran("Book2.csv")
+m=y.preprocessing()
+print(m.head())
+print(predict(m, intc,coef,my_list).to_string())
+
+
+
+
 
 # x.plotting_on_formula([[1,100],[1,150],[1,30],[1,5]])
+df=pd.DataFrame(x.dataset)
 # print(df.head().to_string())
-# print(show_plot(df,"street"))
+print(show_plot(df,"street"))
 # print(show_plot(df,"district"))
-# show_plot(x.dataset,"num_rooms")
+show_plot(x.dataset,"num_rooms")
 # print(show_plot(df,"area"))
 # print(show_plot(df,"max_floor"))
 # print(show_plot(df,"condition"))
@@ -223,12 +178,6 @@ print(gs_cv.best_params_)
 # print(show_plot(df,"ceiling_height"))
 # print(show_plot(df,"num_bathrooms"))
 
-
-
-
-# y_pred=reg.predict(x_test)
-# m=pd.DataFrame({'Actual':y_test,'Predicted':y_pred})
-# print(m.head().to_string)
 
 
 
@@ -248,9 +197,9 @@ print(gs_cv.best_params_)
 # clf=ensemble.GradientBoostingClassifier(n_estimators=1000,max_features=0.1,max_depth=5,min_samples_leaf=2,learning_rate=0.1)
 # print(clf.fit(x_train,y_train))
 # print(clf.score(x_test,y_test))
-
-# myclient = pymongo.MongoClient("mongodb://localhost:27017/")
 #
+# # myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+# #
 # mydb = myclient["mydatabase"]
 
 
