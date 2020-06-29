@@ -21,7 +21,6 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
 from sklearn.linear_model import LinearRegression
 from sklearn import ensemble
-from plotter import plot_on_formula
 from sklearn.model_selection import train_test_split
 from sklearn import ensemble
 from sklearn.metrics import mean_absolute_error
@@ -132,21 +131,22 @@ class bnakaran:
         print('RMSE:', np.sqrt(metrics.mean_squared_error(y_test, predictions)))
         return self.intercept,self.coef,self.mylist
     def plotting_on_formula(self,mylist):
-        # creates a graph on predicted linear formula(arguments:intersept and coefficents)
-        # print("Here is the input data that the graph will be constructed on")
-        # print("intercept:",self.intercept,"coefficients:", self.coef, "list of features:",self.mylist,"your input:",mylist)
-        # yy = []
-        # y = intercept
-        # for k in mylist:
-        #      y+= k[0] * b[0] + k[1] * b[1]
-        #     yy.append(y)
-        # plt.plot(mylist, yy)
-        # print(mylist, yy)
+        # creates a graph on calculated linear formula(arguments:intersept and coefficents)
+        print("Here is the input data that the graph will be constructed on")
+        print("intercept:",self.intercept,"coefficients:", self.coef, "pricing parameter / feature:",self.mylist,"your input:",mylist)
+        yy = []
+
+        for k in mylist:
+            y = self.intercept
+            y+= k * self.coef[0]
+            yy.append(y)
+        plt.plot(mylist, yy)
+        plt.title('Price - feature relationship')
+        plt.xlabel('feature')
+        plt.ylabel('price')
+        print(mylist, yy)
         return plt.show()
 
-
-        plot_on_formula(self.intercept, self.coef, mylist)
-        return
 def predict(df,intc,coef,mylist):
     Y_test = df["price"]
     df.insert(1,"predictions",'')
@@ -160,62 +160,59 @@ def predict(df,intc,coef,mylist):
     print('MAE:', metrics.mean_absolute_error(df['price'], df['predictions']))
     print('MSE:', metrics.mean_squared_error(df['price'], df['predictions']))
     print('RMSE:', np.sqrt(metrics.mean_squared_error(df['price'], df['predictions'])))
-    # print("ADDITIONALLY:   HERE IS THE PRICE INFO ON AVAILABLE RECORDS IN OUR DATABASE")
-    # df.drop("price", axis=1, inplace=True)
-    # df.rename(columns={"predictions":"price_calculated"},inplace=True)
-    # for i in df.to_dict("records"):
-    #     print(i)
-    #     rec=i.pop("price_calculated")
-    #     n=mycol_train.find_one(i,{'_id':0})
-    #     if n:
-    #         print(n)
-    #         print("---------------------------------------------------------")
-
-
-    df.to_excel("output5.xlsx")
+    print("ADDITIONALLY:   HERE IS THE PRICE INFO ON AVAILABLE RECORDS IN OUR DATABASE")
+    df.drop("price", axis=1, inplace=True)
+    df.rename(columns={"predictions":"price_calculated"},inplace=True)
+    for i in df.to_dict("records"):
+       rec=str(i)
+       del i["price_calculated"]
+       n=mycol_train.find_one(i,{'_id':0})
+       if n:
+            print(n)
+            print(rec)
+            print("---------------------------------------------------------")
     return df.head(50)
 
-# myclient=MongoClient('localhost',27017)
-# mydb=myclient['Houses']
-# mycol_predict=mydb["Houses"]
-# mycol_train=mydb["Houses"]
-# mycol_predict.drop()
-# mycol_train.drop()
+myclient=MongoClient('localhost',27017)
+mydb=myclient['Houses']
+mycol_predict=mydb["Houses"]
+mycol_train=mydb["Houses"]
+mycol_predict.drop()
+mycol_train.drop()
 
 
 x=bnakaran('houses_train (1).csv')
 y=x.preprocessing()
-# mycol_train.insert_many(y.to_dict("records"))
+mycol_train.insert_many(y.to_dict("records"))
+# s=0
 # for j in mycol_train.find():
 #     s=s+1
 #     print(s,j)
 print(x.fit_multi_lin(y))
-y=bnakaran("houses_train (1).csv")
+y=bnakaran("Book2.csv")
 m=y.preprocessing()
-intc,coef,my_list=x.fit_multi_lin(m,1)
+intc,coef,my_list=x.fit_multi_lin(m)
 
 predict(m, intc,coef,my_list)
 print("*******************************************************************")
 
+    # for plotting based on the calculated formula, you need to define the only feature according to which
+    # the graph will be created. The argument is a list of the feature values(e.g.area in sqm). It also takes internal arguments:
+    # self.intercept and self.coef which are derived from the last 'fit_multi_lin' call. Note that the 'fit_multi_lin' function
+    #takes an argument "simple"(default value:0) .When argument "simple" is 1,it calculates on only one feature, in our case it is "area"
+    #it is set to 'area': Important - make sure you don't run the function 'predict' before this function run, because it will automatically
+    # add a field 'predictions'.
+# p=bnakaran("houses_train (1).csv")
+# m=p.preprocessing()
+# intc,coef,my_list=x.fit_multi_lin(m,1)
+# x.plotting_on_formula([100,150,200,35])
 
-# test_dict=y.dataset.to_dict("records")
-#
-# # test_dict=mylist={"_id":3,"price":40000,"street":0.1,"floor":3 }
 
-
-x.plotting_on_formula([[1,100],[1,150],[1,200]])
-df=pd.DataFrame(x.dataset)
-# print(df.head().to_string())
-# print(show_plot(df,"street"))
-# print(show_plot(df,"district"))
-# show_plot(x.dataset,"num_rooms")
+    # you cn use 'show_plot' function to get the plotted relationship between a feature and price in the initial dataset
+# z=bnakaran("houses_train (1).csv")
+# df=pd.DataFrame(z.dataset)
 # print(show_plot(df,"area"))
-# print(show_plot(df,"max_floor"))
-# print(show_plot(df,"condition"))
-# print(show_plot(df,"building_type"))
-# print(show_plot(df,"floor"))
-# print(show_plot(df,"ceiling_height"))
-# print(show_plot(df,"num_bathrooms"))
+
 
 
 
@@ -225,37 +222,3 @@ df=pd.DataFrame(x.dataset)
 # plt.grid(which='major', linestyle='-', linewidth='0.5', color='green')
 # plt.grid(which='minor', linestyle=':', linewidth='0.5', color='black')
 # plt.show()
-
-
-# train1 = m.drop(['price','num_rooms', 'building_type','district','num_bathrooms', "max_floor", "floor", "max_floor", "ceiling_height", 'condition'],
-#                          axis=1)
-# labels = m['price']
-# x_train, x_test, y_train, y_test = train_test_split(train1, labels, test_size=0.5, random_state=0)
-#
-#
-# clf=ensemble.GradientBoostingClassifier(n_estimators=1000,max_features=0.1,max_depth=5,min_samples_leaf=2,learning_rate=0.1)
-# print(clf.fit(x_train,y_train))
-# print(clf.score(x_test,y_test))
-#
-
-
-
-
-
-
-
-
-
-
-
-# y=x.dataset[['district','street']]
-# z=y.drop_duplicates(keep='first')
-# z.sort_values(by='district',inplace=True)
-# x.dataset.to_excel('output1.xlsx')
-
-# slope, intercept, r, p, std_err = stats.linregress(x, y)
-# print(r)
-# print(slope)
-# print(intercept)
-# str=stats.linregress(x,y)
-# print(str)
