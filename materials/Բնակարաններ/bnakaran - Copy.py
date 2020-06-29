@@ -1,4 +1,4 @@
-import pymongo
+from pymongo import MongoClient
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -26,9 +26,6 @@ from sklearn.model_selection import train_test_split
 from sklearn import ensemble
 from sklearn.metrics import mean_absolute_error
 # from sklearn.externals import joblib
-
-
-
 
 def show_plot(df, field):
     y = df['price']
@@ -108,10 +105,15 @@ class bnakaran:
         for j in ["building_type","condition",'district','street']:
                 self.dataset[j]=self.dataset[j].map(name_dict[j])
         self.dataset.to_csv("output3.csv")
+        # mycol_train.insert_many(self.dataset.to_dict("records"))
         return self.dataset
-    def fit_multi_lin(self,df):
+    def fit_multi_lin(self,df,simple=0):
         labels = df['price']
-        train1 = df.drop(['price', 'district','num_bathrooms', "max_floor","ceiling_height"],
+        if simple==1:
+            train1 = df.drop(['price', 'district', 'num_bathrooms', "max_floor", "ceiling_height",'condition', 'street', 'num_rooms','building_type', 'floor'],
+                             axis=1)
+        else:
+            train1 = df.drop(['price', 'district','num_bathrooms', "max_floor","ceiling_height"],
                          axis=1)
         x_train, x_test, y_train, y_test = train_test_split(train1, labels, test_size=0.1, random_state=1)
         reg = LinearRegression(fit_intercept=True).fit(train1, labels)
@@ -131,49 +133,82 @@ class bnakaran:
         return self.intercept,self.coef,self.mylist
     def plotting_on_formula(self,mylist):
         # creates a graph on predicted linear formula(arguments:intersept and coefficents)
-        print(self.intercept,self.coef)
+        # print("Here is the input data that the graph will be constructed on")
+        # print("intercept:",self.intercept,"coefficients:", self.coef, "list of features:",self.mylist,"your input:",mylist)
+        # yy = []
+        # y = intercept
+        # for k in mylist:
+        #      y+= k[0] * b[0] + k[1] * b[1]
+        #     yy.append(y)
+        # plt.plot(mylist, yy)
+        # print(mylist, yy)
+        return plt.show()
+
+
         plot_on_formula(self.intercept, self.coef, mylist)
         return
 def predict(df,intc,coef,mylist):
     Y_test = df["price"]
-    df["predictions"] = df["price"]
-
+    df.insert(1,"predictions",'')
     print(my_list)
     for i in range(0, len(df)):
         y = intc
         for l in range(0,len(my_list)):
             y = y+coef[l]*df[str(my_list[l])][i]
         df["predictions"][i]=y
+    print("Here is the accuracy check on the Test data")
+    print('MAE:', metrics.mean_absolute_error(df['price'], df['predictions']))
     print('MSE:', metrics.mean_squared_error(df['price'], df['predictions']))
+    print('RMSE:', np.sqrt(metrics.mean_squared_error(df['price'], df['predictions'])))
+    # print("ADDITIONALLY:   HERE IS THE PRICE INFO ON AVAILABLE RECORDS IN OUR DATABASE")
+    # df.drop("price", axis=1, inplace=True)
+    # df.rename(columns={"predictions":"price_calculated"},inplace=True)
+    # for i in df.to_dict("records"):
+    #     print(i)
+    #     rec=i.pop("price_calculated")
+    #     n=mycol_train.find_one(i,{'_id':0})
+    #     if n:
+    #         print(n)
+    #         print("---------------------------------------------------------")
+
+
+    df.to_excel("output5.xlsx")
     return df.head(50)
+
+# myclient=MongoClient('localhost',27017)
+# mydb=myclient['Houses']
+# mycol_predict=mydb["Houses"]
+# mycol_train=mydb["Houses"]
+# mycol_predict.drop()
+# mycol_train.drop()
 
 
 x=bnakaran('houses_train (1).csv')
-
 y=x.preprocessing()
-predict(y)
+# mycol_train.insert_many(y.to_dict("records"))
+# for j in mycol_train.find():
+#     s=s+1
+#     print(s,j)
+print(x.fit_multi_lin(y))
+y=bnakaran("houses_train (1).csv")
+m=y.preprocessing()
+intc,coef,my_list=x.fit_multi_lin(m,1)
 
-# l=x.fit_multi_lin(x.preprocessing())
-# print(l)
-# intc,coef,my_list=l
-# # intc,coef=(x.fit_multi_lin(x.preprocessing()))
-# # print(x.fit_multi_lin(x.preprocessing()))
+predict(m, intc,coef,my_list)
+print("*******************************************************************")
+
+
+# test_dict=y.dataset.to_dict("records")
 #
-# y=bnakaran("Book2.csv")
-# m=y.preprocessing()
-# print(m.head())
-# print(predict(m, intc,coef,my_list).to_string())
+# # test_dict=mylist={"_id":3,"price":40000,"street":0.1,"floor":3 }
 
 
-
-
-
-# x.plotting_on_formula([[1,100],[1,150],[1,30],[1,5]])
+x.plotting_on_formula([[1,100],[1,150],[1,200]])
 df=pd.DataFrame(x.dataset)
 # print(df.head().to_string())
-print(show_plot(df,"street"))
+# print(show_plot(df,"street"))
 # print(show_plot(df,"district"))
-show_plot(x.dataset,"num_rooms")
+# show_plot(x.dataset,"num_rooms")
 # print(show_plot(df,"area"))
 # print(show_plot(df,"max_floor"))
 # print(show_plot(df,"condition"))
@@ -202,9 +237,6 @@ show_plot(x.dataset,"num_rooms")
 # print(clf.fit(x_train,y_train))
 # print(clf.score(x_test,y_test))
 #
-# # myclient = pymongo.MongoClient("mongodb://localhost:27017/")
-# #
-# mydb = myclient["mydatabase"]
 
 
 
