@@ -1,0 +1,29 @@
+{%extends 'base.html'%}
+{%block html_title%}login{%endblock%}
+{%block head%} 
+<link type="text/css" rel="stylesheet" href="{{url_for ("static", filename='login.css')}}"/>
+{%endblock%}
+{%block content%} 
+<div class="container">
+
+	<form id="login" method="POST" >
+			<div class="form-group">
+				<label for ="login_entry">Login entry</label>
+				<input id="login_entry" type="text" name="login" type="text" value="{{username}}" required />
+				<label for="password_entry">Password</label>
+				<input id="password_entry" type = "password" name="password" required />
+			</div>
+			
+			<div class ="form-buttons">
+				<input type="submit" value="Login">
+			</div>
+	</form>
+</div>
+{%endblock%}
+
+ <br><br><br><br><br><br><br><br>
+      {% block footer %}
+	<p><h4>	<a href="http://127.0.0.1:8080/{{page}}">Search names</a></h4></p>
+	 <p> <h4>		<a href="http://127.0.0.1:8080/">Home</a> </h4> </p>
+        {% endblock %}
+

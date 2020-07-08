@@ -1,0 +1,67 @@
+
+form {
+box-sizing: border-box;
+width: 200px;
+font-size:1em;
+
+display: block;
+padding: 17px;
+margin-bottom:1em;
+
+  }
+  
+ .output{
+ width: 15%;
+ padding: 0.5%;
+ border: 1px solid white;
+ color:red;
+ text-align: left
+ }
+ 
+body{background:	 #ffffe6}
+
+h1 {
+  text-align: center;
+  font-size: 2em;
+  color: #009;
+  margin-bottom: 1em;
+  background-color: rgb(142, 191, 50);}
+    .info-box{
+  border:2px solid blue;
+  color: blue;
+   text-align:center;
+ margin-bottom: 2%;
+ padding:2%;
+ width:250px;
+ font-weight: bold
+
+ }
+
+
+	  
+ h2 {
+    background-color: rgb(142, 191, 66);
+	text-align: center;
+
+      }
+h4 {
+padding-left:1em;}
+
+table {
+  margin: .1em;
+  width: 500px;
+}
+
+th {
+  padding: .2em;
+}
+
+td {
+  padding-left: .5em;
+  padding-right: .5em;
+  border: 1px solid #900;
+  background-color: #ffc;
+}
+
+
+

@@ -1,0 +1,21 @@
+{%extends 'base.html'%}
+{%block html_title%}Dashboard{%endblock%}
+{%block content%} 
+
+
+
+<div class="main">
+	
+	
+Welcome to the dashboard
+<div>
+{{data}}
+</div>
+</div> 
+{%endblock%}
+
+      {% block footer %}
+	<p><h4>	<a href="http://127.0.0.1:8080/search">Search names</a></h4></p>
+	<p><h4>	<a href="http://127.0.0.1:8080/login">Login</a></h4></p>
+	 <p> <h4>		<a href="http://127.0.0.1:8080/">Home</a> </h4> </p>
+        {% endblock %}

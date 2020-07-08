@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+	<head>
+	<title>Flask application - {%block html_title%}{%endblock%}</title>
+	{%block head%}
+
+	<link type="text/css" rel="stylesheet" href="{{url_for ("static", filename='styles.css')}}"/>
+	{%endblock%}
+	</head>
+
+	<body>
+		<heading>
+			<h1>Welcome to our page </h1>
+			<h2>Feel free to add your data and then search for any names to see who has already been there!</h2
+		</heading>
+		<div class="content">
+
+			{% with messages = get_flashed_messages(with_categories=true) %}
+
+				{% if messages %}
+					{% for category, message in messages %}
+						<div class="{{ category }}-box">{{ message }}</div>
+					{% endfor %}
+				{% endif %}
+			{% endwith %}
+		</div>
+		
+		
+		
+		{%block content%}
+		{%endblock%}
+		{%block footer%} {%endblock%}
+	</body>
+</html>

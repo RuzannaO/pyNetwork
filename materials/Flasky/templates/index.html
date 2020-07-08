@@ -1,0 +1,44 @@
+{%extends 'base.html'%}
+{%block html_title%}this is index file{%endblock%}
+{%block content%} 
+
+
+
+<div>
+	<form id="person_info_form" method="POST" action="/" border="1px solid">
+			<div>
+				<label for="first_name_inp">     First name</label>
+				<input id="first_name_inp" type="text" name="First name" value="" required/>
+			</div>
+			<div>
+				<label for="last_name_inp">     Last name</label>
+				<input id="last_name_inp" type="text" name="Last name"  value="" required>
+				
+			</div>
+
+			<div>
+			<label for ="sex_inp">Gender</label>
+			<select  id="sex_inp" name="Sex" required >
+					<option value="None selected">Please   select   below</option>
+					<option value="Male">Male</option>
+					<option value="Female">Female</option>
+
+			</select>
+			</div>
+			<div>
+				<label for="age_inp";  >Your age</label>
+				<input id="age_inp" type="number" min="0"  max= "150" name="age"  value="" required>
+				
+			</div>
+			<div>
+				<input type="submit" value="Submit">
+			</div>
+		</form>
+
+
+</div> {%endblock%}
+
+      {% block footer %}
+	<p><h4>	<a href="http://127.0.0.1:8080/search">Search names</a></h4></p>
+	<p><h4>	<a href="http://127.0.0.1:8080/login">Login</a></h4></p>
+        {% endblock %}
